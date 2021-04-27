@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+  client:
+    build: '.'
+    command: ["npm", "start"]
+    ports:
+      - "8080:3000"
+    volumes:
+      - './src:/app/src'
