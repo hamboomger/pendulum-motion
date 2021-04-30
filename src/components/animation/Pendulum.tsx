@@ -3,7 +3,7 @@ import React, {RefObject, useEffect, useRef, useState} from "react";
 import {Circle, Layer, Line, Stage, Text} from "react-konva";
 import Konva from "konva";
 import {pendulum, Vector} from "../../lib/pendulumFunctions";
-import {AppParametersStore, INITIAL_PEND_COORDS, PendulumStore} from "../../lib/AppState";
+import {AppParametersStore, INITIAL_PEND_COORDS, PENDULUM_RADIUS, PendulumStore} from "../../lib/AppState";
 import {DEGREE_UTF8_SYMBOL, DOT_THETA_UTF8_SYMBOL, precision, THETA_UTF8_SYMBOL} from "../../lib/util";
 import {PSData, PSDSubscriberImpl} from "../../lib/PSDSubscriberImpl";
 import {PhaseSpaceDataObservable} from "../../lib/PhaseSpaceDataObservable";
@@ -124,7 +124,7 @@ const Pendulum: React.FC<Props> = ({ width, height }) => {
           fill="#3af"
           x={pendX}
           y={pendY}
-          radius={20}
+          radius={PENDULUM_RADIUS}
           ref={pendRef}
           draggable={true}
           onDragMove={(e) => updateStringPos([e.target.x(), e.target.y()], pivotCoords, lineRef, thetaLblRef)}

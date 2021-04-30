@@ -4,7 +4,8 @@ import {PhaseSpaceParams} from "./pendulumFunctions";
 import {precision} from "./util";
 import {PhaseSpaceDataObservable} from "./PhaseSpaceDataObservable";
 
-export const INITIAL_PEND_COORDS: [number, number] = [window.innerWidth/4, window.innerHeight/3];
+export const INITIAL_PEND_COORDS: [number, number] = [window.innerWidth/4, window.innerHeight/2];
+export const PENDULUM_RADIUS = 25
 
 export type AnimationState = 'rest' | 'inMotion' | 'paused'
 
