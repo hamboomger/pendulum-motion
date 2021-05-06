@@ -1,7 +1,7 @@
-import {pendulum, PhaseSpace, PhaseSpaceParams} from "./pendulumFunctions";
+import {pendulum, PhaseSpaceData, PhaseSpaceParams} from "./pendulumFunctions";
 
 export interface PSDSubscriber {
-  notify(patchNumber: number, phaseSpace: PhaseSpace): void
+  notify(patchNumber: number, phaseSpace: PhaseSpaceData): void
 }
 
 export class PhaseSpaceDataObservable {
@@ -25,7 +25,7 @@ export class PhaseSpaceDataObservable {
     this.subscribers.push(subscriber);
   }
 
-  private updateThetaParams(lastData: PhaseSpace) {
+  private updateThetaParams(lastData: PhaseSpaceData) {
     const [t, [theta, dotTheta]] = lastData[lastData.length-1];
     this.lastT = t;
     this.lastTheta = theta;
@@ -44,12 +44,12 @@ export class PhaseSpaceDataObservable {
   }
 
   private updatePhaseSpaceData(params: PhaseSpaceParams, patchNumber: number) {
-    const phaseSpaceData = pendulum.phaseSpace(
-      this.lastTheta, this.stringLen, params, this.lastDotTheta, this.lastT ?? 0
-    );
-    this.subscribers.forEach(sub => sub.notify(patchNumber++, phaseSpaceData));
-
-    this.updateThetaParams(phaseSpaceData);
+    // const phaseSpaceData = pendulum.phaseSpace(
+    //   this.lastTheta, this.stringLen, params, this.lastDotTheta, this.lastT ?? 0
+    // );
+    // this.subscribers.forEach(sub => sub.notify(patchNumber++, phaseSpaceData));
+    //
+    // this.updateThetaParams(phaseSpaceData);
   }
 
   stopCalculations() {

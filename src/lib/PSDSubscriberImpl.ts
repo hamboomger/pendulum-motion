@@ -1,5 +1,5 @@
 import {PSDSubscriber} from "./PhaseSpaceDataObservable";
-import {PhaseSpace} from "./pendulumFunctions";
+import {PhaseSpaceData} from "./pendulumFunctions";
 import _ from "lodash";
 
 const CACHE_PATCHES_SIZE = 8;
@@ -31,7 +31,7 @@ export class PSDSubscriberImpl implements PSDSubscriber {
     }
   }
 
-  notify(patchNumber: number, phaseSpace: PhaseSpace) {
+  notify(patchNumber: number, phaseSpace: PhaseSpaceData) {
     const currentPatchData = _.chain(phaseSpace)
       .groupBy(elem => elem[0])
       .mapValues(elem => elem[0][1])

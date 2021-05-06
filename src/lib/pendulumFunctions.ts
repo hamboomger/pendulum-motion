@@ -1,8 +1,9 @@
 import _ from 'lodash';
+import {PIVOT_COORDS} from "./AppState";
 type AngleUnits = 'rad' | 'deg';
 
 export type Vector = [x: number, y: number]
-export type PhaseSpace = Array<[t: number, coord: Vector, vector: Vector]>
+export type PhaseSpaceData = Array<[t: number, coord: Vector, vector: Vector]>
 
 export interface PhaseSpaceParams {
   dt: number,
@@ -13,17 +14,17 @@ export interface PhaseSpaceParams {
 }
 
 export const pendulum = {
-  theta(pivot: [number, number], pendulum: [number, number], units: AngleUnits): number {
-    const adjSide = Math.abs(pivot[1] - pendulum[1]);
-    const oppSide = Math.abs(pivot[0] - pendulum[0]);
+  theta(pendulum: [number, number], units: AngleUnits): number {
+    const adjSide = Math.abs(PIVOT_COORDS[1] - pendulum[1]);
+    const oppSide = Math.abs(PIVOT_COORDS[0] - pendulum[0]);
 
     const angleRad = Math.atan(oppSide / adjSide) ;
     return units === 'rad' ? angleRad : angleRad * 180 / Math.PI
   },
 
-  getStringLength(pivot: [number, number], pendulum: [number, number]): number {
-    const adjSide = Math.abs(pivot[1] - pendulum[1]);
-    const oppSide = Math.abs(pivot[0] - pendulum[0]);
+  getStringLength(pendulum: [number, number]): number {
+    const adjSide = Math.abs(PIVOT_COORDS[1] - pendulum[1]);
+    const oppSide = Math.abs(PIVOT_COORDS[0] - pendulum[0]);
     return Math.sqrt(Math.pow(adjSide, 2) + Math.pow(oppSide, 2));
   },
 
@@ -33,15 +34,16 @@ export const pendulum = {
     return (t) => (maxAngleRad * Math.cos(2*Math.PI/T*t)) * 180 / Math.PI;
   },
 
-  getCoords(pivot: [number, number], angleDeg: number, sLength: number): [number, number] {
+  thetaToCoords(angleRad: number, sLength: number): [number, number] {
+    const angleDeg = angleRad * 180 / Math.PI
     const adjSide = sLength * Math.cos(angleDeg * Math.PI / 180);
     const oppSide = sLength * Math.sin(angleDeg * Math.PI / 180);
 
-    return [pivot[0]+oppSide, pivot[1]+adjSide];
+    return [PIVOT_COORDS[0]+oppSide, PIVOT_COORDS[1]+adjSide];
   },
 
-  phaseSpace(theta: number, L: number, params: PhaseSpaceParams, dotTheta = 0, t0 = 0): PhaseSpace {
-    const result: PhaseSpace = [];
+  phaseSpace(theta: number, L: number, params: PhaseSpaceParams, dotTheta = 0, t0 = 0): PhaseSpaceData {
+    const result: PhaseSpaceData = [];
     const { iterations, friction, g, dt } = params;
     let currIter = 0;
     let t = t0;

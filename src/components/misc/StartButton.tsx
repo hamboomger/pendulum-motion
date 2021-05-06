@@ -3,7 +3,7 @@ import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
 import PauseCircleOutlineIcon from '@material-ui/icons/PauseCircleOutline';
 import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 import React from "react";
-import {AnimationState, PendulumStore} from "../lib/AppState";
+import {AnimationState, PendulumStore} from "../../lib/AppState";
 
 const useStyles = makeStyles((theme) => ({
   fabButton: {
@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const StartButton: React.FC = () => {
-  const { animationState, motionObservable } = PendulumStore.useState();
+  const { animationState } = PendulumStore.useState();
   const classes = useStyles();
 
   const stateToJsxButton: { [prop in AnimationState]: any } = {
@@ -59,7 +59,6 @@ const StartButton: React.FC = () => {
         }
       });
       if (animationState === 'paused') {
-        motionObservable?.stopCalculations();
       }
     }}
          variant="extended"
