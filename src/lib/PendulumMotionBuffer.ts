@@ -10,6 +10,7 @@ export class PendulumMotionBuffer {
     private bufferSize: number
 
     constructor(bufferSize: number) {
+        console.log('New motion buffer created')
         this.bufferSize = bufferSize;
     }
 
@@ -35,6 +36,7 @@ export class PendulumMotionBuffer {
         keysToDelete.forEach(key => {
             delete this.buffer[key];
         });
+        console.log(`Keys deleted: ${keysToDelete.length}`)
     }
 
     addData(bufferElements: PendulumMotionData) {

@@ -21,7 +21,7 @@ interface Props {
 
 const PendulumAnimation: React.FC<Props> = (props) => {
     const { motionBuffer, onPendPositionChange } = props
-    const {pendCoords, animationState, resetAnimation} = PendulumStore.useState();
+    const {pendCoords, animationState, prevAnimationState, resetAnimation} = PendulumStore.useState();
     const params = AppParametersStore.useState();
 
     const pendRef = useRef<Konva.Circle>(null);
@@ -29,10 +29,8 @@ const PendulumAnimation: React.FC<Props> = (props) => {
     const [konvaAnimation, setKonvaAnimation] = useState<Konva.Animation>();
 
     useEffect(() => {
-        console.log('use effect triggered')
         if (
             animationState === 'inMotion'
-            && konvaAnimation === undefined
             && motionBuffer !== undefined
         ) {
             const circle = pendRef.current!;
@@ -73,20 +71,23 @@ const PendulumAnimation: React.FC<Props> = (props) => {
             konvaAnimation.addLayer(pendRef.current?.getLayer());
             konvaAnimation.start();
         }
+    }, [animationState, motionBuffer])
+
+    useEffect(() => {
         if (
-            animationState === 'paused'
-            && konvaAnimation !== undefined
-            && konvaAnimation.isRunning
+            animationState === 'paused' && prevAnimationState === 'inMotion'
         ) {
-            konvaAnimation.stop();
+            konvaAnimation!.stop();
             setKonvaAnimation(undefined);
+            PendulumStoreFunctions.setPendulumCoords([pendRef.current!.x(), pendRef.current!.y()])
         } else if (animationState === 'inMotion' && konvaAnimation) {
             konvaAnimation.start();
         }
-    }, [animationState, konvaAnimation, motionBuffer])
+    }, [animationState, prevAnimationState])
 
     useEffect(() => {
         if (resetAnimation) {
+            console.log('Reset animation???')
             PendulumStore.update(s => {
                 s.pendCoords = INITIAL_PEND_COORDS;
             });
@@ -107,7 +108,7 @@ const PendulumAnimation: React.FC<Props> = (props) => {
                 onPendulumDragMove={(newPendulumCoords) => {
                     lineRef?.current?.points([...PIVOT_COORDS, ...newPendulumCoords]);
 
-                    const theta = pendulum.theta(newPendulumCoords, 'deg')
+                    const theta = pendulum.theta(newPendulumCoords, 'rad')
                     onPendPositionChange(newPendulumCoords, theta, 0)
                 }}
                 onPendulumDragEnd={(newPendulumCoords) => {

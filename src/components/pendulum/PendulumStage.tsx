@@ -13,13 +13,15 @@ interface Props {
 
 const PendulumStage: React.FC<Props> = (props) => {
     const {width: stageWidth, height: stageHeight} = props
-    const {animationState, prevAnimationState} = PendulumStore.useState();
+    const {animationState, prevAnimationState, motionBuffer} = PendulumStore.useState();
 
     const thetaLblRef = useRef<Konva.Text>(null);
     const dotThetaLblRef = useRef<Konva.Text>(null);
-    const [motionBuffer, setMotionBuffer] = useState<PendulumMotionBuffer>()
 
-    function setLabelsText(theta: number, dotTheta: number) {
+    function setLabelsText(thetaRad: number, dotThetaRad: number) {
+        const theta = thetaRad * 180 / Math.PI
+        const dotTheta = dotThetaRad * 180 / Math.PI
+
         thetaLblRef.current?.setText(`${THETA_UTF8_SYMBOL}: ${theta.toFixed(2)}${DEGREE_UTF8_SYMBOL}`);
         dotThetaLblRef.current?.setText(`${DOT_THETA_UTF8_SYMBOL}: ${dotTheta.toFixed(2)}${DEGREE_UTF8_SYMBOL}/s`);
     }
@@ -29,7 +31,9 @@ const PendulumStage: React.FC<Props> = (props) => {
         if (animationState === 'inMotion'
             && (prevAnimationState === 'rest' || prevAnimationState === 'paused'))
         {
-            setMotionBuffer(new PendulumMotionBuffer(1000))
+            PendulumStore.update(s => {
+                s.motionBuffer = new PendulumMotionBuffer(1000)
+            })
         }
     }, [animationState, prevAnimationState]);
     return (

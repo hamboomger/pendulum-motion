@@ -3,7 +3,7 @@ import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
 import PauseCircleOutlineIcon from '@material-ui/icons/PauseCircleOutline';
 import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 import React from "react";
-import {AnimationState, PendulumStore} from "../../lib/AppState";
+import {AnimationState, PendulumStore, PendulumStoreFunctions} from "../../lib/AppState";
 
 const useStyles = makeStyles((theme) => ({
   fabButton: {
@@ -44,22 +44,17 @@ const StartButton: React.FC = () => {
 
   return (
     <Fab onClick={() => {
-      PendulumStore.update((s) => {
         switch (animationState) {
-          case "rest":
-            s.animationState = 'inMotion';
-            break;
-          case "inMotion":
-            s.animationState = 'paused';
-            break;
-          case "paused":
-            s.animationState = 'rest';
-            s.resetAnimation = true;
-            break;
+            case "rest":
+                PendulumStoreFunctions.changeAnimationState('inMotion')
+                break;
+            case "inMotion":
+                PendulumStoreFunctions.changeAnimationState('paused')
+                break;
+            case "paused":
+                PendulumStoreFunctions.changeAnimationState('rest')
+                break;
         }
-      });
-      if (animationState === 'paused') {
-      }
     }}
          variant="extended"
          color="primary"
