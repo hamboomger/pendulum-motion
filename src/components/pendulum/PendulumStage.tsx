@@ -39,6 +39,7 @@ const PendulumStage: React.FC<Props> = (props) => {
             })
         }
     }, [animationState, prevAnimationState]);
+    const verticalMargin = 25
     return (
         <Stage width={stageWidth} height={stageHeight}>
             <Layer>
@@ -49,25 +50,25 @@ const PendulumStage: React.FC<Props> = (props) => {
                 />
                 <Text
                     x={stageWidth-200}
-                    y={20}
+                    y={verticalMargin}
                     text={`${THETA_UTF8_SYMBOL}: 0${DEGREE_UTF8_SYMBOL}`}
-                    fontSize={15}
+                    fontSize={18}
                     ref={thetaLblRef}
                 />
                 <Text
                     x={stageWidth-200}
-                    y={40}
+                    y={verticalMargin*2}
                     text={`${DOT_THETA_UTF8_SYMBOL}: 0${DEGREE_UTF8_SYMBOL}/s`}
                     fontFamily={'sans-serif'}
-                    fontSize={15}
+                    fontSize={18}
                     ref={dotThetaLblRef}
                 />
                 <Text
                     x={stageWidth-200}
-                    y={60}
+                    y={verticalMargin*3}
                     text={'dt: 0.0s'}
                     fontFamily={'sans-serif'}
-                    fontSize={15}
+                    fontSize={18}
                     ref={timeLblRef}
                 />
             </Layer>

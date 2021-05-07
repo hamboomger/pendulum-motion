@@ -15,8 +15,8 @@ export interface PhaseSpaceParams {
 
 export const pendulum = {
   theta(pendulum: [number, number], units: AngleUnits): number {
-    const adjSide = Math.abs(PIVOT_COORDS[1] - pendulum[1]);
-    const oppSide = Math.abs(PIVOT_COORDS[0] - pendulum[0]);
+    const adjSide = pendulum[1] - PIVOT_COORDS[1];
+    const oppSide = pendulum[0] - PIVOT_COORDS[0];
 
     const angleRad = Math.atan(oppSide / adjSide) ;
     return units === 'rad' ? angleRad : angleRad * 180 / Math.PI

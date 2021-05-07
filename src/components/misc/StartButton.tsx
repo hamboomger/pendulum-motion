@@ -15,7 +15,8 @@ const useStyles = makeStyles((theme) => ({
         right: 20,
         bottom: 20,
         '&:hover': {
-            background: '#a006dc'
+            background: '#a006dc',
+            cursor: 'pointer'
         }
     },
     extendedIcon: {

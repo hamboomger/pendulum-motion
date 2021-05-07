@@ -43,7 +43,7 @@ export const PendulumStoreFunctions = {
     PendulumStore.update(state => {
       state.prevAnimationState = state.animationState
       state.animationState = newAnimationState
-      if (newAnimationState === 'rest') {
+      if (newAnimationState === 'rest' || newAnimationState === 'paused') {
         // pick random new color after animation reset
         state.plotColor = _(COLORS_POOL)
             .pull(state.plotColor)
