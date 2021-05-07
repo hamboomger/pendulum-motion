@@ -18,9 +18,9 @@ const PendulumCircle: React.FC<Props> = (props) => {
 
     return (
         <Circle
-            stroke="black"
+            stroke="#b91515"
             strokeWidth={1}
-            fill="#3af"
+            fill="#f71d1d"
             x={x}
             y={y}
             radius={PENDULUM_RADIUS}

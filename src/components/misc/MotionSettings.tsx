@@ -2,6 +2,8 @@ import _ from 'lodash';
 import React from "react";
 import {makeStyles, Paper, Slider, Typography} from "@material-ui/core";
 import {AppParametersStore} from "../../lib/AppState";
+import SettingsIcon from '@material-ui/icons/Settings';
+import '@fontsource/roboto';
 
 const MIN_GRAVITY_VALUE = 2;
 const MAX_GRAVITY_VALUE = 40;
@@ -12,9 +14,8 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     flexWrap: 'wrap',
-    margin: theme.spacing(1),
+    margin: theme.spacing(2),
     width: theme.spacing(42),
-    // height: theme.spacing(32),
     position: 'absolute',
     bottom: '5px',
     left: '5px'
@@ -22,10 +23,20 @@ const useStyles = makeStyles((theme) => ({
   innerBlock: {
     padding: '5px 30px',
   },
+  settingsHeaderBlock: {
+    padding: '5px 0',
+    display: 'flex',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    backgroundColor: '#f71d1d'
+  },
   settingsHeader: {
-    backgroundColor: '#3ce4ff',
-    // color: 'white',
-    // fontWeight: 'bold'
+    color: 'white',
+  },
+  settingsIcon: {
+    color: 'white',
+    marginRight: '5px',
   },
   optionLabel: {
     marginTop: 6,
@@ -56,9 +67,12 @@ const MotionSettings: React.FC = () => {
 
   return (
     <Paper elevation={3} className={classes.settingsBlock}>
-      <Typography className={classes.settingsHeader} variant='h6' align='center'>
-        Parameters
-      </Typography>
+      <div className={classes.settingsHeaderBlock}>
+        <SettingsIcon className={classes.settingsIcon}/>
+        <Typography className={classes.settingsHeader} variant='h6' align='center'>
+          Parameters
+        </Typography>
+      </div>
       <div className={classes.innerBlock}>
         <Typography className={classes.optionLabel}>
           Gravity:

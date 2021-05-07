@@ -40,7 +40,6 @@ const PendulumAnimation: React.FC<Props> = (props) => {
 
                 const pendulumPosition = motionBuffer.getPosition(roundedTime)
                 if (!pendulumPosition) {
-                    console.log('Motion data updated')
                     const lastPositionWithDt = motionBuffer.getLastPositionWithDt()
 
                     const theta = pendulum.theta([circle.x(), circle.y()], 'rad')
@@ -90,7 +89,6 @@ const PendulumAnimation: React.FC<Props> = (props) => {
 
     useEffect(() => {
         if (resetAnimation) {
-            console.log('Reset animation???')
             PendulumStore.update(s => {
                 s.pendCoords = INITIAL_PEND_COORDS;
             });

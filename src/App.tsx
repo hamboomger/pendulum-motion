@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import StartButton from "./components/misc/StartButton";
 import PhaseSpacePlot from "./components/plot/PhaseSpacePlot";
-import MotionSettings from "./components/settings/MotionSettings";
+import MotionSettings from "./components/misc/MotionSettings";
 import PendulumStage from "./components/pendulum/PendulumStage";
 
 function App() {

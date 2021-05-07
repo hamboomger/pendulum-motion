@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import {Store} from "pullstate";
 import {config} from "./config";
 import {PhaseSpaceParams, Vector} from "./pendulumFunctions";
@@ -7,6 +8,14 @@ import {PendulumMotionBuffer} from "./PendulumMotionBuffer";
 export const INITIAL_PEND_COORDS: [number, number] = [window.innerWidth/4, window.innerHeight/2];
 export const PIVOT_COORDS: [number, number] = [window.innerWidth/4, 0];
 export const PENDULUM_RADIUS = 25;
+const COLORS_POOL = [
+  '#e90000',
+  '#0c60fa',
+  '#20d400',
+  '#ffc600',
+  '#0bddab',
+  '#964eff'
+]
 
 export type AnimationState = 'rest' | 'inMotion' | 'paused'
 
@@ -16,7 +25,8 @@ export interface IPendulumStore {
   animationState: AnimationState,
   resetAnimation: boolean,
   motionBuffer?: PendulumMotionBuffer,
-  currentDt: number
+  currentDt: number,
+  plotColor: string,
 }
 
 export const PendulumStore = new Store<IPendulumStore>({
@@ -24,7 +34,8 @@ export const PendulumStore = new Store<IPendulumStore>({
   animationState: 'rest',
   pendCoords: INITIAL_PEND_COORDS,
   resetAnimation: false,
-  currentDt: -1
+  currentDt: -1,
+  plotColor: "#20d400"
 });
 
 export const PendulumStoreFunctions = {
@@ -32,6 +43,12 @@ export const PendulumStoreFunctions = {
     PendulumStore.update(state => {
       state.prevAnimationState = state.animationState
       state.animationState = newAnimationState
+      if (newAnimationState === 'rest') {
+        // pick random new color after animation reset
+        state.plotColor = _(COLORS_POOL)
+            .pull(state.plotColor)
+            .sample()!
+      }
     })
   },
   setPendulumCoords: (newPendulumCoords: Vector) => {

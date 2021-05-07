@@ -1,7 +1,7 @@
 .plot-line {
-    stroke: black;
+    /*stroke: black;*/
     fill: none;
-    stroke-width: 1;
+    stroke-width: 1.5;
 }
 
 .axis path,

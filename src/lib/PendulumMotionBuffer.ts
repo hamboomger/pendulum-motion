@@ -12,7 +12,6 @@ export class PendulumMotionBuffer {
     private config: PhaseSpaceParams
 
     constructor(config: PhaseSpaceParams) {
-        console.log('New motion buffer created')
         this.config = config
         this.bufferSize = config.iterations * 2;
     }
@@ -36,7 +35,6 @@ export class PendulumMotionBuffer {
         const sortedKeys = Object.keys(this.buffer)
             .map(n => parseFloat(n))
             .sort((a, b) => a - b)
-        console.log(`sorted keys: ${sortedKeys}`)
         const startFrom = sortedKeys.findIndex(n => n === fromDt)
         const targetKeys = sortedKeys.slice(startFrom, startFrom + iterations)
         return targetKeys.map(key => {
@@ -61,8 +59,6 @@ export class PendulumMotionBuffer {
         if (bufferOverflow > 0) {
             this.deleteOldestData(bufferOverflow)
         }
-
-        console.log(`buffer data added`)
     }
 
     addPhaseSpaceData(data: PhaseSpaceData) {

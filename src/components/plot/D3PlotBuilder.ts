@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import * as d3 from "d3";
 import './plot.css';
 import {DOT_THETA_UTF8_SYMBOL, THETA_UTF8_SYMBOL} from "../../lib/util";
@@ -7,6 +8,14 @@ export type DataElem = { t: number, theta: number, dotTheta: number }
 export type PlotData = Array<DataElem>;
 type D3Selection = d3.Selection<any, any, any, any>
 
+const COLORS_POOL = [
+    '#e90000',
+    '#0c60fa',
+    '#20d400',
+    '#ffc600',
+    '#0bddab',
+    '#964eff'
+]
 const GRAPH_TITLE = 'Phase space graph'
 const NUMBER_OF_TICKS_DIVIDER_CONSTANT = 50;
 
@@ -43,7 +52,7 @@ export class D3PlotBuilder {
     d3.selectAll("path.plot-line").remove();
   }
 
-  drawPlotLine(rawData: PendulumPositionWithDt[], transitionTimeMillis: number) {
+  drawPlotLine(rawData: PendulumPositionWithDt[], transitionTimeMillis: number, strokeColor: string) {
     const data: PlotData = rawData
         .map(data => {
           const [theta, dotTheta, dt] = data
@@ -106,7 +115,8 @@ export class D3PlotBuilder {
       .transition()
       .duration(transitionTimeMillis)
       .ease(d3.easeLinear)
-      .attr("stroke-dashoffset", 0);
+      .attr("stroke-dashoffset", 0)
+      .attr("stroke", strokeColor);
   }
 
   pauseDrawing() {

@@ -9,7 +9,7 @@ interface Props {
 
 const PhaseSpacePlot: React.FC<Props> = ({width, height}) => {
   const svgRef = useRef(null);
-  const {animationState, resetAnimation, motionBuffer, currentDt} = PendulumStore.useState();
+  const {animationState, resetAnimation, motionBuffer, currentDt, plotColor} = PendulumStore.useState();
   const params = AppParametersStore.useState()
   const [transitionEndMillis, setTransitionEndMillis] = useState(0.1)
   const [plotBuilder, setPlotBuilder] = useState<D3PlotBuilder>();
@@ -21,12 +21,10 @@ const PhaseSpacePlot: React.FC<Props> = ({width, height}) => {
   }, [])
 
   useEffect(() => {
-    console.log(`current dt: ${currentDt}`)
     if (animationState === 'inMotion' && motionBuffer) {
       const motionData = motionBuffer.getPositionsWithDt(currentDt, params.iterations)
-      console.log(`motion data length: ${Object.keys(motionData).length}`)
       if (motionData.length !== 0) {
-        plotBuilder?.drawPlotLine(motionData, params.iterations)
+        plotBuilder?.drawPlotLine(motionData, params.iterations, plotColor)
         setTransitionEndMillis(transitionEndMillis + params.iterations)
       }
     } else if (animationState === 'paused') {
