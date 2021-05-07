@@ -16,6 +16,7 @@ export interface IPendulumStore {
   animationState: AnimationState,
   resetAnimation: boolean,
   motionBuffer?: PendulumMotionBuffer,
+  currentDt: number
 }
 
 export const PendulumStore = new Store<IPendulumStore>({
@@ -23,6 +24,7 @@ export const PendulumStore = new Store<IPendulumStore>({
   animationState: 'rest',
   pendCoords: INITIAL_PEND_COORDS,
   resetAnimation: false,
+  currentDt: -1
 });
 
 export const PendulumStoreFunctions = {
@@ -35,6 +37,11 @@ export const PendulumStoreFunctions = {
   setPendulumCoords: (newPendulumCoords: Vector) => {
     PendulumStore.update(state => {
       state.pendCoords = newPendulumCoords
+    })
+  },
+  updateCurrentDt: (newDt: number) => {
+    PendulumStore.update(state => {
+      state.currentDt = newDt
     })
   }
 }

@@ -1,20 +1,23 @@
 import _ from 'lodash'
-import {PhaseSpaceData} from "./pendulumFunctions";
+import {PhaseSpaceData, PhaseSpaceParams} from "./pendulumFunctions";
 
 export type PendulumPosition = [theta: number, dotTheta: number]
+export type PendulumPositionWithDt = [theta: number, dotTheta: number, dt: number]
 export type PendulumMotionData = {[dt: string]: PendulumPosition}
 type Buffer = PendulumMotionData
 
 export class PendulumMotionBuffer {
     private buffer: Buffer = {}
     private bufferSize: number
+    private config: PhaseSpaceParams
 
-    constructor(bufferSize: number) {
+    constructor(config: PhaseSpaceParams) {
         console.log('New motion buffer created')
-        this.bufferSize = bufferSize;
+        this.config = config
+        this.bufferSize = config.iterations * 2;
     }
 
-    getLastPositionWithDt(): [position: PendulumPosition, dt: number] | null {
+    getLastPositionWithDt(): PendulumPositionWithDt | null {
         if (_.isEmpty(this.buffer)) {
             return null
         }
@@ -22,11 +25,24 @@ export class PendulumMotionBuffer {
         const sortedKeys = Object.keys(this.buffer)
             .sort((a, b) => parseFloat(a) - parseFloat(b));
         const lastKey = sortedKeys[Object.keys(this.buffer).length - 1]
-        return [this.buffer[lastKey], Number(lastKey)]
+        return [...this.buffer[lastKey], Number(lastKey)]
     }
 
     getPosition(dt: number): PendulumPosition | null {
         return this.buffer[dt]
+    }
+
+    getPositionsWithDt(fromDt: number, iterations: number): PendulumPositionWithDt[] {
+        const sortedKeys = Object.keys(this.buffer)
+            .map(n => parseFloat(n))
+            .sort((a, b) => a - b)
+        console.log(`sorted keys: ${sortedKeys}`)
+        const startFrom = sortedKeys.findIndex(n => n === fromDt)
+        const targetKeys = sortedKeys.slice(startFrom, startFrom + iterations)
+        return targetKeys.map(key => {
+            const [theta, dotTheta] = this.buffer[key]
+            return [theta, dotTheta, key]
+        })
     }
 
     private deleteOldestData(nOfElementsToDelete: number) {
@@ -36,7 +52,6 @@ export class PendulumMotionBuffer {
         keysToDelete.forEach(key => {
             delete this.buffer[key];
         });
-        console.log(`Keys deleted: ${keysToDelete.length}`)
     }
 
     addData(bufferElements: PendulumMotionData) {
@@ -46,6 +61,8 @@ export class PendulumMotionBuffer {
         if (bufferOverflow > 0) {
             this.deleteOldestData(bufferOverflow)
         }
+
+        console.log(`buffer data added`)
     }
 
     addPhaseSpaceData(data: PhaseSpaceData) {

@@ -1,5 +1,5 @@
-import React, {useEffect, useRef, useState} from "react";
-import {PendulumStore} from "../../lib/AppState";
+import React, {useEffect, useRef} from "react";
+import {AppParametersStore, PendulumStore} from "../../lib/AppState";
 import Konva from "konva";
 import {DEGREE_UTF8_SYMBOL, DOT_THETA_UTF8_SYMBOL, THETA_UTF8_SYMBOL} from "../../lib/util";
 import {PendulumMotionBuffer} from "../../lib/PendulumMotionBuffer";
@@ -13,17 +13,20 @@ interface Props {
 
 const PendulumStage: React.FC<Props> = (props) => {
     const {width: stageWidth, height: stageHeight} = props
-    const {animationState, prevAnimationState, motionBuffer} = PendulumStore.useState();
+    const {animationState, prevAnimationState} = PendulumStore.useState()
+    const params = AppParametersStore.useState()
 
     const thetaLblRef = useRef<Konva.Text>(null);
     const dotThetaLblRef = useRef<Konva.Text>(null);
+    const timeLblRef = useRef<Konva.Text>(null);
 
-    function setLabelsText(thetaRad: number, dotThetaRad: number) {
+    function setLabelsText(thetaRad: number, dotThetaRad: number, dt: number) {
         const theta = thetaRad * 180 / Math.PI
         const dotTheta = dotThetaRad * 180 / Math.PI
 
         thetaLblRef.current?.setText(`${THETA_UTF8_SYMBOL}: ${theta.toFixed(2)}${DEGREE_UTF8_SYMBOL}`);
         dotThetaLblRef.current?.setText(`${DOT_THETA_UTF8_SYMBOL}: ${dotTheta.toFixed(2)}${DEGREE_UTF8_SYMBOL}/s`);
+        timeLblRef.current?.setText(`dt: ${dt.toFixed(2)}s`)
     }
 
     useEffect(() => {
@@ -32,7 +35,7 @@ const PendulumStage: React.FC<Props> = (props) => {
             && (prevAnimationState === 'rest' || prevAnimationState === 'paused'))
         {
             PendulumStore.update(s => {
-                s.motionBuffer = new PendulumMotionBuffer(1000)
+                s.motionBuffer = new PendulumMotionBuffer(params)
             })
         }
     }, [animationState, prevAnimationState]);
@@ -40,9 +43,8 @@ const PendulumStage: React.FC<Props> = (props) => {
         <Stage width={stageWidth} height={stageHeight}>
             <Layer>
                 <PendulumAnimation
-                    motionBuffer={motionBuffer}
-                    onPendPositionChange={(newCoords, theta, dotTheta) => {
-                        setLabelsText(theta, dotTheta)
+                    onPendPositionChange={(newCoords, theta, dotTheta, dt) => {
+                        setLabelsText(theta, dotTheta, dt)
                     }}
                 />
                 <Text
@@ -59,6 +61,14 @@ const PendulumStage: React.FC<Props> = (props) => {
                     fontFamily={'sans-serif'}
                     fontSize={15}
                     ref={dotThetaLblRef}
+                />
+                <Text
+                    x={stageWidth-200}
+                    y={60}
+                    text={'dt: 0.0s'}
+                    fontFamily={'sans-serif'}
+                    fontSize={15}
+                    ref={timeLblRef}
                 />
             </Layer>
         </Stage>

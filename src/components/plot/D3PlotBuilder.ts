@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import './plot.css';
-import {PSData} from "../../lib/PSDSubscriberImpl";
 import {DOT_THETA_UTF8_SYMBOL, THETA_UTF8_SYMBOL} from "../../lib/util";
+import {PendulumPositionWithDt} from "../../lib/PendulumMotionBuffer";
 
 export type DataElem = { t: number, theta: number, dotTheta: number }
 export type PlotData = Array<DataElem>;
@@ -43,14 +43,12 @@ export class D3PlotBuilder {
     d3.selectAll("path.plot-line").remove();
   }
 
-  drawPlotLine(rawData: PSData) {
-    const data: PlotData = Object.entries(rawData)
-      .sort((a, b) => {
-        return parseFloat(a[0]) - parseFloat(b[0])
-      }).map(d => {
-        const [t, [theta, dotTheta]] = d;
-        return {t: parseFloat(t), theta, dotTheta};
-      });
+  drawPlotLine(rawData: PendulumPositionWithDt[], transitionTimeMillis: number) {
+    const data: PlotData = rawData
+        .map(data => {
+          const [theta, dotTheta, dt] = data
+          return { t: dt, theta, dotTheta }
+        })
 
     const xValRangeRad = Math.PI / 2;
     const yValRangeRad = Math.PI / 8;
@@ -106,7 +104,7 @@ export class D3PlotBuilder {
       .attr("stroke-dasharray", totalLength + " " + totalLength)
       .attr("stroke-dashoffset", totalLength)
       .transition()
-      .duration(1000)
+      .duration(transitionTimeMillis)
       .ease(d3.easeLinear)
       .attr("stroke-dashoffset", 0);
   }
