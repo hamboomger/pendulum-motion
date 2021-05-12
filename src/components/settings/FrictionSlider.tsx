@@ -4,8 +4,8 @@ import SliderWithText from "../common/SliderWithText";
 import {AppParametersStore} from "../../lib/AppState";
 
 const MIN_FRICTION_VALUE = 0;
-const MAX_FRICTION_VALUE = 0.5;
-const GRAVITY_STEP = 0.01;
+const MAX_FRICTION_VALUE = 0.1;
+const GRAVITY_STEP = 0.005;
 
 const FrictionSlider: React.FC = () => {
     const { friction } = AppParametersStore.useState()
