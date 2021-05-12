@@ -4,6 +4,6 @@ services:
     build: '.'
     command: ["npm", "start"]
     ports:
-      - "8080:3000"
+      - "8081:3000"
     volumes:
       - './src:/app/src'
