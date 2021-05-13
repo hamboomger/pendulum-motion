@@ -1,5 +1,6 @@
 import React from "react";
 import {Grid, Input, InputAdornment, makeStyles, Slider, Typography} from "@material-ui/core";
+import {PendulumStore} from "../../lib/AppState";
 
 const useStyles = makeStyles({
     container: {
@@ -31,8 +32,12 @@ interface Props {
 
 const SliderWithText: React.FC<Props> = (props) => {
     const classes = useStyles();
+    const { animationState } = PendulumStore.useState()
+
     const { minValue, maxValue, initialValue, step, label, onValueChange, metrics, icon } = props
     const [value, setValue] = React.useState(initialValue);
+
+    const settingsDisabled = animationState === 'inMotion' || animationState === 'paused'
 
     const handleSliderChange = (newValue: number) => {
         setValue(newValue);
@@ -64,6 +69,7 @@ const SliderWithText: React.FC<Props> = (props) => {
                 </Grid>
                 <Grid item xs={7}>
                     <Slider
+                        disabled={settingsDisabled}
                         value={value}
                         onChange={(event, val) => handleSliderChange(val as number)}
                         onChangeCommitted={(event, val) => handleSliderDragStop(val as number)}
@@ -75,6 +81,7 @@ const SliderWithText: React.FC<Props> = (props) => {
                 </Grid>
                 <Grid item xs={3}>
                     <Input
+                        disabled={settingsDisabled}
                         className={classes.input}
                         value={value}
                         margin="dense"
