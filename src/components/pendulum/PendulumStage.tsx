@@ -5,10 +5,19 @@ import {DEGREE_UTF8_SYMBOL, DOT_THETA_UTF8_SYMBOL, THETA_UTF8_SYMBOL} from "../.
 import {PendulumMotionBuffer} from "../../lib/PendulumMotionBuffer";
 import {Layer, Stage, Text} from "react-konva";
 import PendulumAnimation from "./PendulumAnimation";
+import {PhaseSpaceParams} from "../../lib/pendulumFunctions";
+import {startPendMotionWorker} from "../../workers/pendulumMotionWorkerConnector";
 
 interface Props {
     width: number,
     height: number
+}
+
+const startAnimation = (params: PhaseSpaceParams) => {
+    // const pendMotionWorker = startPendMotionWorker()
+    PendulumStore.update(s => {
+        s.motionBuffer = new PendulumMotionBuffer(params)
+    })
 }
 
 const PendulumStage: React.FC<Props> = (props) => {
@@ -30,13 +39,10 @@ const PendulumStage: React.FC<Props> = (props) => {
     }
 
     useEffect(() => {
-        console.log(`animation state: ${animationState}, prev state: ${prevAnimationState}`)
         if (animationState === 'inMotion'
             && (prevAnimationState === 'rest' || prevAnimationState === 'paused'))
         {
-            PendulumStore.update(s => {
-                s.motionBuffer = new PendulumMotionBuffer(params)
-            })
+            startAnimation(params);
         }
     }, [animationState, prevAnimationState]);
     const verticalMargin = 25
