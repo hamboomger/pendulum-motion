@@ -8,7 +8,6 @@ export type PhaseSpaceData = Array<[t: number, coord: Vector, vector: Vector]>
 export interface PhaseSpaceParams {
   dt: number,
   friction: number,
-  iterations: number,
   g: number,
   precision: number
 }
@@ -44,10 +43,10 @@ export const pendulum = {
 
   phaseSpace(theta: number, L: number, params: PhaseSpaceParams, dotTheta = 0, t0 = 0): PhaseSpaceData {
     const result: PhaseSpaceData = [];
-    const { iterations, friction, g, dt } = params;
+    const { friction, g, dt } = params;
     let currIter = 0;
     let t = t0;
-    while (currIter++ < iterations) {
+    while (currIter++ < 1000) {
       const coord: Vector = [theta, dotTheta];
       const doubleDotTheta = -friction*dotTheta - g / L * Math.sin(theta);
       const vector: Vector = [dotTheta, doubleDotTheta];

@@ -40,24 +40,26 @@ const PendulumAnimation: React.FC<Props> = (props) => {
 
                 const pendulumPosition = motionBuffer.getPosition(roundedTime)
                 if (!pendulumPosition) {
-                    const lastPositionWithDt = motionBuffer.getLastPositionWithDt()
-
-                    const theta = pendulum.theta([circle.x(), circle.y()], 'rad')
-                    const L = pendulum.getStringLength([circle.x(), circle.y()])
-
-                    if (lastPositionWithDt) {
-                        const [theta, dotTheta, dt] = lastPositionWithDt
-                        motionBuffer.addPhaseSpaceData(
-                            pendulum.phaseSpace(theta, L, params, dotTheta, dt)
-                        )
-                        PendulumStoreFunctions.updateCurrentDt(dt)
-                    } else {
-                        motionBuffer.addPhaseSpaceData(
-                            pendulum.phaseSpace(theta, L, params)
-                        )
-                        PendulumStoreFunctions.updateCurrentDt(0)
-                    }
-                    PendulumStoreFunctions.setPendulumCoords([pendRef.current!.x(), pendRef.current!.y()])
+                    console.log(`failed to find position at time: ${roundedTime}`);
+                // if (!pendulumPosition) {
+                //     const lastPositionWithDt = motionBuffer.getLastPositionWithDt()
+                //
+                //     const theta = pendulum.theta([circle.x(), circle.y()], 'rad')
+                //     const L = pendulum.getStringLength([circle.x(), circle.y()])
+                //
+                //     if (lastPositionWithDt) {
+                //         const [theta, dotTheta, dt] = lastPositionWithDt
+                //         motionBuffer.addPhaseSpaceData(
+                //             pendulum.phaseSpace(theta, L, params, dotTheta, dt)
+                //         )
+                //         PendulumStoreFunctions.updateCurrentDt(dt)
+                //     } else {
+                //         motionBuffer.addPhaseSpaceData(
+                //             pendulum.phaseSpace(theta, L, params)
+                //         )
+                //         PendulumStoreFunctions.updateCurrentDt(0)
+                //     }
+                //     PendulumStoreFunctions.setPendulumCoords([pendRef.current!.x(), pendRef.current!.y()])
                 } else {
                     const [theta, dotTheta] = pendulumPosition;
                     const sLength = pendulum.getStringLength(pendCoords);

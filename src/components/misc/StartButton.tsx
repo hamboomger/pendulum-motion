@@ -3,7 +3,11 @@ import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
 import PauseCircleOutlineIcon from '@material-ui/icons/PauseCircleOutline';
 import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 import React from "react";
-import {AnimationState, PendulumStore, PendulumStoreFunctions} from "../../lib/AppState";
+import {AnimationState, PendulumStore} from "../../lib/AppState";
+
+interface IProps {
+    onClick: (state: AnimationState) => void
+}
 
 const useStyles = makeStyles((theme) => ({
     fabButton: {
@@ -24,8 +28,8 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const StartButton: React.FC = () => {
-    const {animationState} = PendulumStore.useState();
+const StartButton: React.FC<IProps> = (props) => {
+    const {animationState: currentState} = PendulumStore.useState();
     const classes = useStyles();
 
     const stateToJsxButton: { [prop in AnimationState]: any } = {
@@ -51,26 +55,23 @@ const StartButton: React.FC = () => {
 
     return (
         <Fab onClick={() => {
-            switch (animationState) {
-                case "rest":
-                    PendulumStoreFunctions.changeAnimationState('inMotion')
-                    break;
-                case "inMotion":
-                    PendulumStoreFunctions.changeAnimationState('paused')
-                    break;
-                case "paused":
-                    PendulumStoreFunctions.changeAnimationState('rest')
-                    break;
-            }
+            const nextState = buttonStateTransitions[currentState]
+            props.onClick(nextState)
         }}
              variant="extended"
             // color="primary"
              aria-label="add"
              className={classes.fabButton}
         >
-            {stateToJsxButton[animationState]}
+            {stateToJsxButton[currentState]}
         </Fab>
     );
+}
+
+const buttonStateTransitions: { [prop in AnimationState]: AnimationState } = {
+    rest: 'inMotion',
+    inMotion: 'paused',
+    paused: 'rest'
 }
 
 export default StartButton;

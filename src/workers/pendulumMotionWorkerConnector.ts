@@ -6,7 +6,7 @@ export interface StartMotionWorkerMessage {
   params: PhaseSpaceParams
 }
 
-export class PendMotionWorker {
+export class PendulumMotionWorker {
   constructor(
     private readonly worker: Worker
   ) {}
@@ -29,9 +29,9 @@ export class PendMotionWorker {
 
 export const startPendMotionWorker = (
   message: StartMotionWorkerMessage,
-): PendMotionWorker => {
-  const worker = new PendMotionWorker(
-    new Worker('/workers/pendulumMotionWorker.js')
+): PendulumMotionWorker => {
+  const worker = new PendulumMotionWorker(
+    new Worker('workers/pendulumMotionWorker.js')
   )
   worker.sendStartMessage(message)
   return worker

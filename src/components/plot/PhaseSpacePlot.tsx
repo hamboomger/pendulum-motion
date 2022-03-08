@@ -12,7 +12,6 @@ const PhaseSpacePlot: React.FC<Props> = ({width, height}) => {
   const {
     animationState, prevAnimationState, resetAnimation, motionBuffer, currentDt, plotColor
   } = PendulumStore.useState();
-  const params = AppParametersStore.useState()
   const [transitionEndMillis, setTransitionEndMillis] = useState(0.1)
   const [plotBuilder, setPlotBuilder] = useState<D3PlotBuilder>();
 
@@ -24,10 +23,10 @@ const PhaseSpacePlot: React.FC<Props> = ({width, height}) => {
 
   useEffect(() => {
     if (animationState === 'inMotion' && motionBuffer) {
-      const motionData = motionBuffer.getPositionsWithDt(currentDt, params.iterations)
+      const motionData = motionBuffer.getPositionsWithDt(currentDt, 1000)
       if (motionData.length !== 0) {
-        plotBuilder?.drawPlotLine(motionData, params.iterations, plotColor)
-        setTransitionEndMillis(transitionEndMillis + params.iterations)
+        plotBuilder?.drawPlotLine(motionData, 1000, plotColor)
+        setTransitionEndMillis(transitionEndMillis + 1000)
       }
     } else if (animationState === 'paused') {
       plotBuilder?.pauseDrawing();

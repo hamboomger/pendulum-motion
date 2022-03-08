@@ -4,6 +4,7 @@ import {config} from "./config";
 import {PhaseSpaceParams, Vector} from "./pendulumFunctions";
 import {precision} from "./util";
 import {PendulumMotionBuffer} from "./PendulumMotionBuffer";
+import {PendulumMotionWorker} from "../workers/pendulumMotionWorkerConnector";
 
 export const INITIAL_PEND_COORDS: [number, number] = [window.innerWidth/4, window.innerHeight/2];
 export const PIVOT_COORDS: [number, number] = [window.innerWidth/4, 0];
@@ -24,6 +25,7 @@ export interface IPendulumStore {
   prevAnimationState: AnimationState,
   animationState: AnimationState,
   resetAnimation: boolean,
+  motionWorker?: PendulumMotionWorker,
   motionBuffer?: PendulumMotionBuffer,
   currentDt: number,
   plotColor: string,
@@ -67,6 +69,5 @@ export const AppParametersStore = new Store<PhaseSpaceParams>({
   g: config.g,
   friction: config.friction,
   dt: config.dt,
-  iterations: config.iterations,
   precision: precision(config.dt),
 });

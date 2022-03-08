@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import {PhaseSpaceData, PhaseSpaceParams} from "./pendulumFunctions";
+import {PendulumMotionWorker} from "../workers/pendulumMotionWorkerConnector";
 
 export type PendulumPosition = [theta: number, dotTheta: number]
 export type PendulumPositionWithDt = [theta: number, dotTheta: number, dt: number]
@@ -8,12 +9,14 @@ type Buffer = PendulumMotionData
 
 export class PendulumMotionBuffer {
     private buffer: Buffer = {}
-    private bufferSize: number
-    private config: PhaseSpaceParams
+    private readonly bufferSize: number
 
-    constructor(config: PhaseSpaceParams) {
-        this.config = config
-        this.bufferSize = config.iterations * 2;
+    constructor(
+      private config: PhaseSpaceParams,
+      motionWorker: PendulumMotionWorker,
+    ) {
+        this.bufferSize = 1000 * 4;
+        this.subscribe(motionWorker);
     }
 
     getLastPositionWithDt(): PendulumPositionWithDt | null {
@@ -43,6 +46,13 @@ export class PendulumMotionBuffer {
         })
     }
 
+    private subscribe(worker: PendulumMotionWorker) {
+        worker.onMessage((data) => {
+            console.log(`received data: ${JSON.stringify(data, null, 2)}`);
+        })
+        // worker.onMessage(this.addPhaseSpaceData)
+    }
+
     private deleteOldestData(nOfElementsToDelete: number) {
         const keysToDelete = Object.keys(this.buffer)
             .sort((a, b) => parseFloat(a) - parseFloat(b))
@@ -52,21 +62,17 @@ export class PendulumMotionBuffer {
         });
     }
 
-    addData(bufferElements: PendulumMotionData) {
-        Object.assign(this.buffer, bufferElements)
-
-        const bufferOverflow = Object.keys(this.buffer).length - this.bufferSize
-        if (bufferOverflow > 0) {
-            this.deleteOldestData(bufferOverflow)
-        }
-    }
-
     addPhaseSpaceData(data: PhaseSpaceData) {
         const convertedData: PendulumMotionData = _(data)
             .keyBy(d => d[0])
             .mapValues(d => d[1])
             .value()
 
-        this.addData(convertedData)
+        Object.assign(this.buffer, convertedData)
+
+        const bufferOverflow = Object.keys(this.buffer).length - this.bufferSize
+        if (bufferOverflow > 0) {
+            this.deleteOldestData(bufferOverflow)
+        }
     }
 }

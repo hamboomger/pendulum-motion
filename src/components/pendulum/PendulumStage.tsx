@@ -5,24 +5,32 @@ import {DEGREE_UTF8_SYMBOL, DOT_THETA_UTF8_SYMBOL, THETA_UTF8_SYMBOL} from "../.
 import {PendulumMotionBuffer} from "../../lib/PendulumMotionBuffer";
 import {Layer, Stage, Text} from "react-konva";
 import PendulumAnimation from "./PendulumAnimation";
-import {PhaseSpaceParams} from "../../lib/pendulumFunctions";
+import {pendulum, PhaseSpaceParams, Vector} from "../../lib/pendulumFunctions";
 import {startPendMotionWorker} from "../../workers/pendulumMotionWorkerConnector";
 
 interface Props {
-    width: number,
+    width: number
     height: number
+    onAnimationStart: (pendCoords: Vector) => void
 }
 
-const startAnimation = (params: PhaseSpaceParams) => {
-    // const pendMotionWorker = startPendMotionWorker()
+const startAnimation = (params: PhaseSpaceParams, pendCoords: Vector) => {
+    const L = pendulum.getStringLength(pendCoords)
+    const theta = pendulum.theta(pendCoords, 'rad')
+    const pendMotionWorker = startPendMotionWorker({
+        L,
+        theta,
+        params
+    })
     PendulumStore.update(s => {
-        s.motionBuffer = new PendulumMotionBuffer(params)
+        s.motionWorker = pendMotionWorker
+        s.motionBuffer = new PendulumMotionBuffer(params, pendMotionWorker)
     })
 }
 
 const PendulumStage: React.FC<Props> = (props) => {
-    const {width: stageWidth, height: stageHeight} = props
-    const {animationState, prevAnimationState} = PendulumStore.useState()
+    const {width: stageWidth, height: stageHeight, onAnimationStart} = props
+    const {animationState, prevAnimationState, pendCoords} = PendulumStore.useState()
     const params = AppParametersStore.useState()
 
     const thetaLblRef = useRef<Konva.Text>(null);
@@ -42,7 +50,7 @@ const PendulumStage: React.FC<Props> = (props) => {
         if (animationState === 'inMotion'
             && (prevAnimationState === 'rest' || prevAnimationState === 'paused'))
         {
-            startAnimation(params);
+            onAnimationStart(pendCoords);
         }
     }, [animationState, prevAnimationState]);
     const verticalMargin = 25
