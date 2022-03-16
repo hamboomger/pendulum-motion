@@ -4,43 +4,54 @@ import FloatingActionButton from "./components/misc/StartButton";
 import PhaseSpacePlot from "./components/plot/PhaseSpacePlot";
 import MotionSettings from "./components/settings/MotionSettings";
 import PendulumStage from "./components/pendulum/PendulumStage";
-import {AppParametersStore, PendulumStore, PendulumStoreFunctions} from "./lib/AppState";
-import {pendulum, PhaseSpaceParams, Vector} from "./lib/pendulumFunctions";
-import {startPendMotionWorker} from "./workers/pendulumMotionWorkerConnector";
-import {PendulumMotionBuffer} from "./lib/PendulumMotionBuffer";
+import {useMachine} from "@xstate/react";
+import {MachineState, pendulumMachine} from "./machine/machine";
 
 function App() {
-  const params = AppParametersStore.useState()
+  const [state, send] = useMachine(pendulumMachine)
+  console.log(`app.state: ${state.value}`)
   return (
     <div className="App">
       <PendulumStage
         height={window.innerHeight}
         width={window.innerWidth/2}
-        onAnimationStart={
-          (pendCoords) => startAnimation(params, pendCoords)
+        state={
+          // @ts-ignore
+          (state as MachineState)
         }
+        onPendDragEnd={(newCoords) => {
+          send({
+            type: 'UPDATE_PEND_COORDS',
+            coords: newCoords,
+          })
+          send({
+            type: 'START_MOTION',
+          })
+        }}
       />
       <PhaseSpacePlot height={window.innerHeight} width={window.innerWidth/2} />
       <MotionSettings />
       <FloatingActionButton
-        onClick={(animationState) => {
-            PendulumStoreFunctions.changeAnimationState(animationState)
+        onClick={(nextAnimationState) => {
+          if (nextAnimationState === 'inMotion') {
+            send({
+              type: 'START_MOTION',
+            })
+          }
+          if (nextAnimationState === 'paused') {
+            send({
+              type: 'PAUSE_MOTION',
+            })
+          }
+          if (nextAnimationState === 'rest') {
+            send({
+              type: 'RESET_PENDULUM',
+            })
+          }
         }
       }/>
     </div>
   );
-}
-
-const startAnimation = (params: PhaseSpaceParams, pendCoords: Vector) => {
-  const L = pendulum.getStringLength(pendCoords)
-  const theta = pendulum.theta(pendCoords, 'rad')
-  const pendMotionWorker = startPendMotionWorker({
-    L, theta, params
-  })
-  PendulumStore.update(s => {
-    s.motionWorker = pendMotionWorker
-    s.motionBuffer = new PendulumMotionBuffer(params, pendMotionWorker)
-  })
 }
 
 export default App;

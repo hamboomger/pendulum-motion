@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
-import {AppParametersStore, PendulumStore} from "../../lib/AppState";
+import {PendulumStore} from "../../lib/AppState";
 import {D3PlotBuilder} from "./D3PlotBuilder";
 
 interface Props {

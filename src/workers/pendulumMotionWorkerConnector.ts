@@ -21,9 +21,19 @@ export class PendulumMotionWorker {
   }
 
   onMessage(callback: (data: PhaseSpaceData) => void) {
-    this.worker.onmessage = (event) => {
+    this.worker.addEventListener('message', (event) => {
       callback(event.data);
-    }
+    })
+  }
+
+  onFirstMessage(callback: (data: PhaseSpaceData) => void) {
+    let calledOnce = false
+    this.worker.addEventListener('message', (event) => {
+      if (!calledOnce) {
+        callback(event.data)
+        calledOnce = true
+      }
+    })
   }
 }
 

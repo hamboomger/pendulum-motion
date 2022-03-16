@@ -5,64 +5,49 @@ import {precision} from "../../lib/util";
 import {pendulum, Vector} from "../../lib/pendulumFunctions";
 import {
     AppParametersStore,
-    INITIAL_PEND_COORDS,
-    PendulumStore,
     PendulumStoreFunctions,
     PIVOT_COORDS
 } from "../../lib/AppState";
 import {Line} from "react-konva";
 import PendulumCircle from "./PendulumCircle";
+import {MachineState} from "../../machine/machine";
 
 interface Props {
     onPendPositionChange: (newCoords: Vector, theta: number, dotTheta: number, dt: number) => void
+    onPendDragEnd: (newCoords: Vector) => void
+    state: MachineState
 }
 
 const PendulumAnimation: React.FC<Props> = (props) => {
-    const { onPendPositionChange } = props
-    const {pendCoords, animationState, prevAnimationState, resetAnimation, motionBuffer} = PendulumStore.useState();
+    const { onPendPositionChange, onPendDragEnd, state } = props
+    const { context: ctx } = state
     const params = AppParametersStore.useState();
 
     const pendRef = useRef<Konva.Circle>(null);
     const lineRef = useRef<Konva.Line>(null);
     const [konvaAnimation, setKonvaAnimation] = useState<Konva.Animation>();
 
+    console.log(`animation.state: ${state.value}`)
+
     useEffect(() => {
         if (
-            animationState === 'inMotion'
-            && motionBuffer !== undefined
+            state.matches('inMotion')
         ) {
             const circle = pendRef.current!;
             const line = lineRef.current!;
+            console.log('inMotion animation!')
             const konvaAnimation = new Konva.Animation((frame => {
                 const { time } = frame!;
 
                 const roundedTime = _.round(time/100, precision(params.dt));
 
-                const pendulumPosition = motionBuffer.getPosition(roundedTime)
+                const { motionBuffer, pendCoords } = ctx
+                const pendulumPosition = motionBuffer!.getPosition(roundedTime)
+                const sLength = pendulum.getStringLength(pendCoords);
                 if (!pendulumPosition) {
                     console.log(`failed to find position at time: ${roundedTime}`);
-                // if (!pendulumPosition) {
-                //     const lastPositionWithDt = motionBuffer.getLastPositionWithDt()
-                //
-                //     const theta = pendulum.theta([circle.x(), circle.y()], 'rad')
-                //     const L = pendulum.getStringLength([circle.x(), circle.y()])
-                //
-                //     if (lastPositionWithDt) {
-                //         const [theta, dotTheta, dt] = lastPositionWithDt
-                //         motionBuffer.addPhaseSpaceData(
-                //             pendulum.phaseSpace(theta, L, params, dotTheta, dt)
-                //         )
-                //         PendulumStoreFunctions.updateCurrentDt(dt)
-                //     } else {
-                //         motionBuffer.addPhaseSpaceData(
-                //             pendulum.phaseSpace(theta, L, params)
-                //         )
-                //         PendulumStoreFunctions.updateCurrentDt(0)
-                //     }
-                //     PendulumStoreFunctions.setPendulumCoords([pendRef.current!.x(), pendRef.current!.y()])
                 } else {
                     const [theta, dotTheta] = pendulumPosition;
-                    const sLength = pendulum.getStringLength(pendCoords);
                     const newCoords = pendulum.thetaToCoords(theta, sLength);
 
                     onPendPositionChange(newCoords, theta, dotTheta, roundedTime/10)
@@ -75,36 +60,26 @@ const PendulumAnimation: React.FC<Props> = (props) => {
             konvaAnimation.addLayer(pendRef.current?.getLayer());
             konvaAnimation.start();
         }
-    }, [animationState, motionBuffer])
+    }, [state.value])
 
     useEffect(() => {
         if (
-            animationState === 'paused' && prevAnimationState === 'inMotion'
+            !state.matches('inMotion') && konvaAnimation
         ) {
             konvaAnimation!.stop();
             setKonvaAnimation(undefined);
             PendulumStoreFunctions.setPendulumCoords([pendRef.current!.x(), pendRef.current!.y()])
-        } else if (animationState === 'inMotion' && konvaAnimation) {
-            konvaAnimation.start();
         }
-    }, [animationState, prevAnimationState])
+    }, [state.value])
 
-    useEffect(() => {
-        if (resetAnimation) {
-            PendulumStore.update(s => {
-                s.pendCoords = INITIAL_PEND_COORDS;
-            });
-
-            lineRef.current?.points([...PIVOT_COORDS, INITIAL_PEND_COORDS[0], INITIAL_PEND_COORDS[1]]);
-            pendRef.current?.position({ x: INITIAL_PEND_COORDS[0], y: INITIAL_PEND_COORDS[1]});
-            onPendPositionChange(INITIAL_PEND_COORDS, 0, 0, 0)
-        }
-    }, [resetAnimation])
+    const currentPendCoords: Vector = pendRef?.current
+            ? [pendRef.current.x(), pendRef.current.y()]
+            : ctx.pendCoords
     return (
         <>
             <Line
                 stroke="black"
-                points={[...PIVOT_COORDS, ...pendCoords]}
+                points={[...PIVOT_COORDS, ...currentPendCoords]}
                 ref={lineRef}
             />
             <PendulumCircle
@@ -114,10 +89,7 @@ const PendulumAnimation: React.FC<Props> = (props) => {
                     const theta = pendulum.theta(newPendulumCoords, 'rad')
                     onPendPositionChange(newPendulumCoords, theta, 0, 0)
                 }}
-                onPendulumDragEnd={(newPendulumCoords) => {
-                    PendulumStoreFunctions.setPendulumCoords(newPendulumCoords)
-                    PendulumStoreFunctions.changeAnimationState('inMotion')
-                }}
+                onPendulumDragEnd={onPendDragEnd}
              pendRef={pendRef}/>
         </>
     );

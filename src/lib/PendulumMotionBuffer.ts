@@ -47,10 +47,7 @@ export class PendulumMotionBuffer {
     }
 
     private subscribe(worker: PendulumMotionWorker) {
-        worker.onMessage((data) => {
-            console.log(`received data: ${JSON.stringify(data, null, 2)}`);
-        })
-        // worker.onMessage(this.addPhaseSpaceData)
+        worker.onMessage((data) => this.addPhaseSpaceData(data))
     }
 
     private deleteOldestData(nOfElementsToDelete: number) {
@@ -68,6 +65,7 @@ export class PendulumMotionBuffer {
             .mapValues(d => d[1])
             .value()
 
+        console.log(`buffer: ${JSON.stringify(this.buffer, null, 2)}`)
         Object.assign(this.buffer, convertedData)
 
         const bufferOverflow = Object.keys(this.buffer).length - this.bufferSize

@@ -6,8 +6,8 @@ import {precision} from "./util";
 import {PendulumMotionBuffer} from "./PendulumMotionBuffer";
 import {PendulumMotionWorker} from "../workers/pendulumMotionWorkerConnector";
 
-export const INITIAL_PEND_COORDS: [number, number] = [window.innerWidth/4, window.innerHeight/2];
-export const PIVOT_COORDS: [number, number] = [window.innerWidth/4, 0];
+export const INITIAL_PEND_COORDS: Vector = [window.innerWidth/4, window.innerHeight/2];
+export const PIVOT_COORDS: Vector = [window.innerWidth/4, 0];
 export const PENDULUM_RADIUS = 25;
 const COLORS_POOL = [
   '#e90000',

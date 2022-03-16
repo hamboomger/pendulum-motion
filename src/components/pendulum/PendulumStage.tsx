@@ -1,37 +1,20 @@
-import React, {useEffect, useRef} from "react";
-import {AppParametersStore, PendulumStore} from "../../lib/AppState";
+import React, {useRef} from "react";
 import Konva from "konva";
 import {DEGREE_UTF8_SYMBOL, DOT_THETA_UTF8_SYMBOL, THETA_UTF8_SYMBOL} from "../../lib/util";
-import {PendulumMotionBuffer} from "../../lib/PendulumMotionBuffer";
 import {Layer, Stage, Text} from "react-konva";
 import PendulumAnimation from "./PendulumAnimation";
-import {pendulum, PhaseSpaceParams, Vector} from "../../lib/pendulumFunctions";
-import {startPendMotionWorker} from "../../workers/pendulumMotionWorkerConnector";
+import {Vector} from "../../lib/pendulumFunctions";
+import {MachineState} from "../../machine/machine";
 
 interface Props {
     width: number
     height: number
-    onAnimationStart: (pendCoords: Vector) => void
-}
-
-const startAnimation = (params: PhaseSpaceParams, pendCoords: Vector) => {
-    const L = pendulum.getStringLength(pendCoords)
-    const theta = pendulum.theta(pendCoords, 'rad')
-    const pendMotionWorker = startPendMotionWorker({
-        L,
-        theta,
-        params
-    })
-    PendulumStore.update(s => {
-        s.motionWorker = pendMotionWorker
-        s.motionBuffer = new PendulumMotionBuffer(params, pendMotionWorker)
-    })
+    state: MachineState
+    onPendDragEnd: (newCoords: Vector) => void
 }
 
 const PendulumStage: React.FC<Props> = (props) => {
-    const {width: stageWidth, height: stageHeight, onAnimationStart} = props
-    const {animationState, prevAnimationState, pendCoords} = PendulumStore.useState()
-    const params = AppParametersStore.useState()
+    const {width: stageWidth, height: stageHeight, state} = props
 
     const thetaLblRef = useRef<Konva.Text>(null);
     const dotThetaLblRef = useRef<Konva.Text>(null);
@@ -46,21 +29,16 @@ const PendulumStage: React.FC<Props> = (props) => {
         timeLblRef.current?.setText(`dt: ${dt.toFixed(2)}s`)
     }
 
-    useEffect(() => {
-        if (animationState === 'inMotion'
-            && (prevAnimationState === 'rest' || prevAnimationState === 'paused'))
-        {
-            onAnimationStart(pendCoords);
-        }
-    }, [animationState, prevAnimationState]);
     const verticalMargin = 25
     return (
         <Stage width={stageWidth} height={stageHeight}>
             <Layer>
                 <PendulumAnimation
+                    state={state}
                     onPendPositionChange={(newCoords, theta, dotTheta, dt) => {
                         setLabelsText(theta, dotTheta, dt)
                     }}
+                    onPendDragEnd={props.onPendDragEnd}
                 />
                 <Text
                     x={stageWidth-200}

@@ -17,6 +17,7 @@ function calculateNextInterval(theta, L, params, dotTheta = 0, t0 = 0) {
 
     return {
         phaseSpaceData: result,
+        lastTheta: theta,
         lastDotTheta: dotTheta,
         lastT: t,
     };
@@ -28,12 +29,22 @@ onmessage = function(e) {
         theta, L, params
     } = e.data;
     const firstData = calculateNextInterval(theta, L, params)
+    let lastTheta = firstData.lastTheta
+    let lastDotTheta = firstData.lastDotTheta
+    let lastT = firstData.lastT
     postMessage(firstData.phaseSpaceData)
-    // setTimeout(() => {
-    //
-    // }, UPDATE_INTERVAL_SEC / 2 * 1000)
-    // setInterval(() => {
-    //
-    // }, UPDATE_INTERVAL_SEC * 1000)
-    // console.log(`data chunk: ${JSON.stringify(phaseSpaceData, null, 2)}`)
+    setImmediate(() => {
+        const secondBatch = calculateNextInterval(lastTheta, L, params, lastDotTheta, lastT)
+        lastTheta = secondBatch.lastTheta
+        lastDotTheta = secondBatch.lastDotTheta
+        lastT = secondBatch.lastT
+        postMessage(secondBatch.phaseSpaceData)
+    })
+    setInterval(() => {
+        const nextBatch = calculateNextInterval(lastTheta, L, params, lastDotTheta, lastT)
+        lastTheta = nextBatch.lastTheta
+        lastDotTheta = nextBatch.lastDotTheta
+        lastT = nextBatch.lastT
+        postMessage(nextBatch.phaseSpaceData)
+    }, UPDATE_INTERVAL_SEC * 1000)
 }
